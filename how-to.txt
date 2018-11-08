@@ -1,0 +1,6 @@
+How to run the program twitch-chatlog:
+run line in cmd: 
+
+twitch-chatlog -s 00:15:00 -l 7200 <vod_id> > <filename>
+
+twitch-chatlog -s 00:15:00 -l 7200 <vod_id> > "C:\Users\Ethan Johnson\Documents\GitHub\cs585SarcasmDetection\vod<streamerName>_output.txt"
