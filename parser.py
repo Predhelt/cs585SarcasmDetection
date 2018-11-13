@@ -13,7 +13,7 @@ def parse_chat(chat_file):
                 statement_with_usernames = "{}".format(line[11:].strip())
                 start_index = statement_with_usernames.find('>')
                 statement = statement_with_usernames[start_index+1:]
-                parsed_chat.write(statement + '\n')
+                parsed_chat.write(statement.lower() + '\n')
             line = fp.readline()
 if __name__ == '__main__':
 	parse_chat("mfbiscuits.txt")
