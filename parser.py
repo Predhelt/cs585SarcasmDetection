@@ -1,6 +1,7 @@
 import numpy as np
 from os import listdir
 from os.path import isfile, join
+import operator
 
 def parse_chat(chat_file, raw_path):
     #chat_file = "mfbiscuits.txt"
@@ -56,35 +57,63 @@ def index_text(chat_file): # uses all-parsed file
         line = fp.readline()
         
         line_num = 0
+        vod_count = 0
         while line:
             if line == '\n': # empty line, end of previous vod
                 line = fp.readline()
                 if line: # line has name of vod
+                    vod_count += 1
                     vods[vod_name] = chat_index
                     vod_name = line
                     
-                    line = fp.readline
+                    line = fp.readline()
                     chat_index = []
                     line_num = 0
                 else:
                     break # eof
-            wi = line.split(' ')
             
-            chat_index.append(wi)
+            li = line.split() # make list of words
+            
+            chat_index.append(li) # add list of words to index
 
             line = fp.readline()
             line_num += 1
-    print(vods.keys())
+        vods[vod_name] = chat_index # put last vod in the index
+    return vods
+    #for vod in vods.keys():
+    #    print(vods[vod][:10])
+    
+def word_counts(index):
+    wl = {} # word list dictionary
+    for vod in index.values():
+        for message in vod:
+            for word in message:
+                if word not in wl.keys():
+                    wl[word] = 1
+                else:
+                    wl[word] = wl[word] + 1
+    return wl
+
+def wl_sorted_output(wl):
+    #sort it from most common word to least common word
+    sorted_wl = sorted(wl.items(), key=operator.itemgetter(1), reverse=True)
+    wlf = open('word_counts.csv', 'w', encoding='utf-8')
+    for word in sorted_wl:
+        output = str(word[0]) + ', ' + str(word[1]) + '\n'
+        #print(output)
+        wlf.write(output)
+    wlf.close()
     
             
 
 if __name__ == '__main__':
-    mypath = 'raw_data/'
-    filenames = np.array([(mypath + f) for f in listdir(mypath) if isfile(join(mypath, f))])
+    #mypath = 'raw_data/'
+    #filenames = np.array([(mypath + f) for f in listdir(mypath) if isfile(join(mypath, f))])
     #print(filenames)
     #parse_all_chats(filenames, mypath)
-    index_text('parsed_data/all-parsed.txt')
-    
+    indx = index_text('parsed_data/all-parsed.txt')
+    wl = word_counts(indx)
+    wl_sorted_output(wl)
     #for file in filenames:
         #parse_chat(file, mypath)
         #index_text(file, mypath)
