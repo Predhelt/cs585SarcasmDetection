@@ -13,14 +13,7 @@ def parse_chat(chat_file, raw_path):
     with open(chat_file, encoding='utf-8') as fp:
         line = fp.readline()
         while line:
-            # '[*] <*> +'
             message = "".join(line.split('> ')[1:]) # text starts after the first occurrence
-            #print(message)
-            #if( == ):
-            #print("TRUE")
-            #statement_with_usernames = "{}".format(line[11:].strip())
-            #start_index = statement_with_usernames.find('>')
-            #statement = statement_with_usernames[start_index+1:]
             parsed_chat.write(message.lower())
             line = fp.readline()
             
@@ -104,9 +97,9 @@ def word_counts(index):
 def check_word(w):
     #stopwords = []
     olws = re.compile('[a-z0-9\^@]') # valid one-letter words
-    marks = re.compile('[^a-z0-9\-_\']') # contains certain marks
-    abc = re.compile('[a-z]\.[a-z]\.+') # 
-    http = re.compile('.*https?.+') # check for http link
+    http = re.compile('.*https?://.+') # check for http link
+    marks = re.compile('[^a-z0-9\-_\'\\/]') # contains certain marks
+    initials = re.compile('[a-z]\.[a-z]\.+') # initialism
     
     #print(w)
     if(len(w) == 1):
@@ -121,7 +114,7 @@ def check_word(w):
     i = 0
     for mi in ms:
         mi = mi.start()
-        if(len(w)-1 == mi or not abc.match(w[mi-i:])):
+        if(len(w)-1 == mi or not initials.match(w[mi-i:])):
             #print("mark found at index", mi-i)
             if(mi == 0):
                 w = w[1:]
@@ -131,8 +124,11 @@ def check_word(w):
         i += 1
     return w
     
-    
-        
+##def check_words(w):
+##    thisorthat = re.compile('\w+/\w+') # ex: this/that
+##    if thisorthat.match(w)
+##        return w.split('/') # IMPROVE: doesn't consider edge cases
+##    else: return [w]
 
 def wl_sorted_output(wl):
     #sort it from most common word to least common word
