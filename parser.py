@@ -1,6 +1,7 @@
 import numpy as np
 from os import listdir
 from os.path import isfile, join
+import re
 import operator
 
 def parse_chat(chat_file, raw_path):
@@ -88,11 +89,50 @@ def word_counts(index):
     for vod in index.values():
         for message in vod:
             for word in message:
-                if word not in wl.keys():
-                    wl[word] = 1
-                else:
-                    wl[word] = wl[word] + 1
+                # parse words to remove commas
+                word = check_word(word)
+                word = word.split('/')
+                for w in word:
+                    if w == '':
+                        continue
+                    if w not in wl.keys():
+                        wl[w] = 1
+                    else:
+                        wl[w] = wl[w] + 1
     return wl
+
+def check_word(w):
+    #stopwords = []
+    olws = re.compile('[a-z0-9\^@]') # valid one-letter words
+    marks = re.compile('[^a-z0-9\-_\']') # contains certain marks
+    abc = re.compile('[a-z]\.[a-z]\.+') # 
+    http = re.compile('.*https?.+') # check for http link
+    
+    #print(w)
+    if(len(w) == 1):
+        if(not olws.match(w)):
+            return ''
+        else: return w
+
+    if(http.match(w)):
+        return ''
+        
+    ms = marks.finditer(w)
+    i = 0
+    for mi in ms:
+        mi = mi.start()
+        if(len(w)-1 == mi or not abc.match(w[mi-i:])):
+            #print("mark found at index", mi-i)
+            if(mi == 0):
+                w = w[1:]
+            else:
+                w = w[:mi-i] + w[mi+1-i:]
+            #print(w)
+        i += 1
+    return w
+    
+    
+        
 
 def wl_sorted_output(wl):
     #sort it from most common word to least common word
@@ -111,9 +151,9 @@ if __name__ == '__main__':
     #filenames = np.array([(mypath + f) for f in listdir(mypath) if isfile(join(mypath, f))])
     #print(filenames)
     #parse_all_chats(filenames, mypath)
-    indx = index_text('parsed_data/all-parsed.txt')
-    wl = word_counts(indx)
-    wl_sorted_output(wl)
+    indx = index_text('parsed_data/all-parsed.txt') # Get inverted index of vods
+    wl = word_counts(indx) # get the word counts of each word
+    wl_sorted_output(wl) # output sorted word counts to predetermined file
     #for file in filenames:
         #parse_chat(file, mypath)
         #index_text(file, mypath)
