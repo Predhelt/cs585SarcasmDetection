@@ -8,7 +8,7 @@ def parse_chat(chat_file, raw_path):
     #chat_file = "mfbiscuits.txt"
 
     chat_name = chat_file.lstrip(raw_path)
-    file_name = "parsed_data/" + chat_name + "-parsed.txt"
+    file_name = "data/parsed_data/" + chat_name + "-parsed.txt"
     parsed_chat = open(file_name, "w", encoding='utf-8')
     with open(chat_file, encoding='utf-8') as fp:
         line = fp.readline()
@@ -25,7 +25,7 @@ def parse_all_chats(chat_files, raw_path):
     #subsequent lines until blank line: lines of vod
     #next line with text: name of next vod
     
-    file_name = "parsed_data/all-parsed.txt"
+    file_name = "data/parsed_data/all-parsed.txt"
     parsed_chat = open(file_name, "w", encoding='utf-8')
     for chat_file in chat_files:
         chat_name = chat_file.lstrip(raw_path)[:-4]
@@ -74,8 +74,6 @@ def index_text(chat_file): # uses all-parsed file
             line_num += 1
         vods[vod_name] = chat_index # put last vod in the index
     return vods
-    #for vod in vods.keys():
-    #    print(vods[vod][:10])
     
 def word_counts(index):
     wl = {} # word list dictionary
@@ -147,7 +145,7 @@ if __name__ == '__main__':
     #filenames = np.array([(mypath + f) for f in listdir(mypath) if isfile(join(mypath, f))])
     #print(filenames)
     #parse_all_chats(filenames, mypath)
-    indx = index_text('parsed_data/all-parsed.txt') # Get inverted index of vods
+    indx = index_text('data/parsed_data/all-parsed.txt') # Get inverted index of vods
     wl = word_counts(indx) # get the word counts of each word
     wl_sorted_output(wl) # output sorted word counts to predetermined file
     #for file in filenames:
