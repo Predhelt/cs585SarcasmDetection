@@ -67,7 +67,7 @@ def _compute_features(line, label):
     return vec
 
 # FEATURES GO HERE
-# All feature values should be in the range 0 <= x < inf
+# All feature values should be in the range -inf < x < inf
 def _endswith_exclaim(line): # TODO
     return 0
 
