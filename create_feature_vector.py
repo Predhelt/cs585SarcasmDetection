@@ -44,24 +44,33 @@ def create_fv(indx, label):
     fv = []
     f_names = [] # list of names of features
 
-    f_names.append('exclaiming')
-    f_names.append('questioning')
-    f_names.append('sentiment score')
-    
+    f_names.append('exclaiming_end')
+    f_names.append('questioning_end')
+    #f_names.append('sentiment score')
+    f_names.append('uppercase_word_count')
+    f_names.append('people_tagged')
+    f_names.append('#_of_exclamations')
+    f_names.append('#_of_questions')
+    f_names.append('punctuation_pairs')
     f_names.append('label')
 
     fv.append(f_names)
-    
+
     for line in indx: # (vod_id, chat_info)
         fv.append(_compute_features(line, label))
     return fv
-    
+
 
 def _compute_features(line, label):
     vec = []
     vec.append(_endswith_exclaim(line))
     vec.append(_endswith_question(line))
-    vec.append(_sentiment_score(line))
+    vec.append(_uppercase_words(line))
+    vec.append(_people_tagged(line))
+    vec.append(_character_count(line, '!'))
+    vec.append(_character_count(line, '?'))
+    vec.append(_punctuation_pairs(line))
+   # vec.append(_sentiment_score(line))
     # ADD MORE FEATURE FUNCTION CALLS HERE
     vec.append(label)
     return vec
@@ -80,7 +89,47 @@ def _endswith_question(line): # TODO
     return 0
 
 def _sentiment_score(line): # TODO
+    tokens = line.lower().split()
     return 0
+
+#Returns percentage of words that are uppercase 0<= x <= 1
+def _uppercase_words(line):
+    count = 0
+    tokens = line.split()
+    for word in tokens:
+        if word.isupper():
+            count += 1
+    return float(count/len(tokens))
+
+#Returns number of times certain character is present in line. Usually check for '!' or '?' Default for character = !
+def _character_count(line, character = '!'):
+    count = 0
+    for c in line:
+        if c == character:
+            count+=1
+    return count
+
+#Return number of people tagged in statement. Used to denote conversation.
+def _people_tagged(line):
+    tokens = line.split()
+    count = 0
+    for word in tokens:
+        if word[0] == '@':
+            count+=1
+    return count
+
+#Return pairs of expressive punctuation. Example: Where is my supersuit!?!?!?!!!?? should return 5
+def _punctuation_pairs(line):
+    punc_list = ['!', '?']
+    count = 0
+    for i in range(0, len(line)-1):
+        first = line[i]
+        second = line[i+1]
+        if first in punc_list and second in punc_list:
+            count += 1
+            i = i + 2
+            continue
+    return count
 
 def output_features(neg_fv, pos_fv, of): # fv = feature vector, of = output file
     # file.write(neg_fv + pos_fv)
