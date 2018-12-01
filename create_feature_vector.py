@@ -4,11 +4,11 @@
 ## text line 2
 ## ...
 ## empty line
-## vod ID (Repeat)
+## vod ID (Repeat)...
 
-def index_text(chat_file): # uses all-parsed file
-    # index shape: vod{vod_name:chat[line[text]]}
-    vods = {}
+def index_text(chat_file, label): # uses the all-parsed file
+    # index shape: vod[(vod_ID, chat[line[text]])]
+    vods = []
     chat_index = []
     
     with open(chat_file, 'r', encoding='utf-8') as fp:
@@ -22,7 +22,7 @@ def index_text(chat_file): # uses all-parsed file
                 line = fp.readline()
                 if line: # line has ID of vod
                     vod_count += 1
-                    vods[vod_id] = chat_index
+                    vods.append((vod_id, chat_index))
                     vod_id = line
                     
                     line = fp.readline()
@@ -42,32 +42,48 @@ def index_text(chat_file): # uses all-parsed file
 
 def create_fv(indx):
     fv = []
-    # for vec in indx:
-    #    fv.append(_compute_features(vec))
+    f_names = [] # list of names of features
+
+    f_names.append('exclaiming')
+    f_names.append('questioning')
+    f_names.append('sentiment score')
+    
+    f_names.append('label')
+
+    fv.append(f_names)
+    
+    for line in indx: # (vod_id, chat_info)
+        fv.append(_compute_features(line))
     
 
-def _compute_features(vec):
-    vec.append(_word_count())
-    vec.append(_char_count())
-    vec.append(_endswith_exclain())
-    vec.append(_endswith_question())
+def _compute_features(line, label):
+    vec = []
+    vec.append(_endswith_exclaim(line))
+    vec.append(_endswith_question(line))
+    vec.append(_sentiment_score(line))
+    # ADD MORE FEATURE FUNCTION CALLS HERE
+    vec.append(label)
     return vec
 
 def output_features(neg_fv, pos_fv, of): # fv = feature vector, of = output file
     # file.write(neg_fv + pos_fv)
+    file = open(of, 'w')
+    for vec in neg_fv:
+        line = ''
+        for f in vec:
+            line += f + ', '
+        file.write(line[:-2] + '\n') # remove last comma and space
 
 # FEATURES GO HERE
-def _word_count(): # TODO
-    return
+# All feature values should be in the range 0 <= x < inf
+def _endswith_exclaim(line): # TODO
+    return 0
 
-def _char_count(): # TODO remove?
-    return
+def _endswith_question(line): # TODO
+    return 0
 
-def _endswith_exclaim(): # TODO
-    return
-
-def _endswith_question(): # TODO
-    return
+def _sentiment_score(line): # TODO
+    return 0
 
 
 if __name__ == '__main__':
@@ -75,7 +91,7 @@ if __name__ == '__main__':
     pos_data_file = 'labelled_data/1.txt'
     neg_indx = index_text(neg_data_file)
     pos_indx = index_text(pos_data_file)
-    neg_fv = create_fv(neg_indx)
-    pos_fv = create_fv(pos_indx)
+    neg_fv = create_fv(neg_indx, 0)
+    pos_fv = create_fv(pos_indx, 1)
     of = 'data/data.csv'
     output_features(neg_fv, pos_fv, of)
