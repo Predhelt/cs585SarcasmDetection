@@ -6,7 +6,7 @@
 ## empty line
 ## vod ID (Repeat)...
 
-def index_text(chat_file, label): # uses the all-parsed file
+def index_text(chat_file): # uses the all-parsed file
     # index shape: vod[(vod_ID, chat[line[text]])]
     vods = []
     chat_index = []
@@ -37,10 +37,10 @@ def index_text(chat_file, label): # uses the all-parsed file
 
             line = fp.readline()
             line_num += 1
-        vods[vod_name] = chat_index # put last vod in the index
+        vods.append((vod_id, chat_index)) # put last vod in the index
     return vods
 
-def create_fv(indx):
+def create_fv(indx, label):
     fv = []
     f_names = [] # list of names of features
 
@@ -53,7 +53,8 @@ def create_fv(indx):
     fv.append(f_names)
     
     for line in indx: # (vod_id, chat_info)
-        fv.append(_compute_features(line))
+        fv.append(_compute_features(line, label))
+    return fv
     
 
 def _compute_features(line, label):
@@ -64,15 +65,6 @@ def _compute_features(line, label):
     # ADD MORE FEATURE FUNCTION CALLS HERE
     vec.append(label)
     return vec
-
-def output_features(neg_fv, pos_fv, of): # fv = feature vector, of = output file
-    # file.write(neg_fv + pos_fv)
-    file = open(of, 'w')
-    for vec in neg_fv:
-        line = ''
-        for f in vec:
-            line += f + ', '
-        file.write(line[:-2] + '\n') # remove last comma and space
 
 # FEATURES GO HERE
 # All feature values should be in the range 0 <= x < inf
@@ -85,10 +77,23 @@ def _endswith_question(line): # TODO
 def _sentiment_score(line): # TODO
     return 0
 
+def output_features(neg_fv, pos_fv, of): # fv = feature vector, of = output file
+    # file.write(neg_fv + pos_fv)
+    file = open(of, 'w')
+    for vec in neg_fv:
+        line = ''
+        for f in vec:
+            line += str(f) + ', '
+        file.write(line[:-2] + '\n') # remove last comma and space
+    for vec in pos_fv[1:]:
+        line = ''
+        for f in vec:
+            line += str(f) + ', '
+        file.write(line[:-2] + '\n') # remove last comma and space
 
 if __name__ == '__main__':
-    neg_data_file = 'labelled_data/0.txt'
-    pos_data_file = 'labelled_data/1.txt'
+    neg_data_file = 'data/labelled_data/0.txt'
+    pos_data_file = 'data/labelled_data/1.txt'
     neg_indx = index_text(neg_data_file)
     pos_indx = index_text(pos_data_file)
     neg_fv = create_fv(neg_indx, 0)

@@ -145,7 +145,7 @@ if __name__ == '__main__':
     #filenames = np.array([(mypath + f) for f in listdir(mypath) if isfile(join(mypath, f))])
     #print(filenames)
     #parse_all_chats(filenames, mypath)
-    indx = index_text('data/parsed_data/all-parsed.txt') # Get inverted index of vods
+    indx = index_text('data/all-parsed.txt') # Get inverted index of vods
     wl = word_counts(indx) # get the word counts of each word
     wl_sorted_output(wl) # output sorted word counts to predetermined file
     #for file in filenames:
