@@ -25,7 +25,7 @@ def parse_all_chats(chat_files, raw_path):
     #subsequent lines until blank line: lines of vod
     #next line with text: name of next vod
     
-    file_name = "data/parsed_data/all-parsed.txt"
+    file_name = "data/all-parsed.txt"
     parsed_chat = open(file_name, "w", encoding='utf-8')
     for chat_file in chat_files:
         chat_name = chat_file.lstrip(raw_path)[:-4]
@@ -131,7 +131,7 @@ def check_word(w):
 def wl_sorted_output(wl):
     #sort it from most common word to least common word
     sorted_wl = sorted(wl.items(), key=operator.itemgetter(1), reverse=True)
-    wlf = open('word_counts.csv', 'w', encoding='utf-8')
+    wlf = open('data/word_counts.csv', 'w', encoding='utf-8')
     for word in sorted_wl:
         output = str(word[0]) + ', ' + str(word[1]) + '\n'
         #print(output)
@@ -141,10 +141,10 @@ def wl_sorted_output(wl):
             
 
 if __name__ == '__main__':
-    #mypath = 'raw_data/'
-    #filenames = np.array([(mypath + f) for f in listdir(mypath) if isfile(join(mypath, f))])
+    mypath = 'data/raw_data/'
+    filenames = np.array([(mypath + f) for f in listdir(mypath) if isfile(join(mypath, f))])
     #print(filenames)
-    #parse_all_chats(filenames, mypath)
+    parse_all_chats(filenames, mypath)
     indx = index_text('data/all-parsed.txt') # Get inverted index of vods
     wl = word_counts(indx) # get the word counts of each word
     wl_sorted_output(wl) # output sorted word counts to predetermined file

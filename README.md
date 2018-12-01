@@ -15,8 +15,7 @@ The data folder contains the following folders:
 - data.csv is the list of samples with each of their features calculated and labels given as the last column.	Computed using create_feature_vector.py
 
 TODO:
-- make python script to output feature vector with last index as the label
 - Baseline algorithm on dummy data located in readable_data file
 - make python script to make a temp file of possible sarcastic/non-sarcastic data to make data gathering faster
 
-- 
+- Determine what extra information we want to get from the vod
