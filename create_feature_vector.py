@@ -6,6 +6,8 @@
 ## empty line
 ## vod ID (Repeat)...
 
+#LINE FORMAT IS (vod_id, chat_info)
+#chat[line[text]]
 def index_text(chat_file): # uses the all-parsed file
     # index shape: vod[(vod_ID, chat[line[text]])]
     vods = []
@@ -79,23 +81,27 @@ def _compute_features(line, label):
 # All feature values should be in the range 0 <= x < inf
 #return 1 if line ends with exclamation point. 0 if not.
 def _endswith_exclaim(line): # TODO
-    if line[-1] == '!':
+    text = line[1][0][2]
+    if text[-1] == '!':
         return 1
     return 0
 
 def _endswith_question(line): # TODO
-    if line[-1] == '?':
+    text = line[1][0][2]
+    if text[-1] == '?':
         return 1
     return 0
 
 def _sentiment_score(line): # TODO
-    tokens = line.lower().split()
+    text = line[1][0][2]
+    tokens = text.lower().split()
     return 0
 
 #Returns percentage of words that are uppercase 0<= x <= 1
 def _uppercase_words(line):
     count = 0
-    tokens = line.split()
+    text = line[1][0][2]
+    tokens = text.split()
     for word in tokens:
         if word.isupper():
             count += 1
@@ -104,14 +110,16 @@ def _uppercase_words(line):
 #Returns number of times certain character is present in line. Usually check for '!' or '?' Default for character = !
 def _character_count(line, character = '!'):
     count = 0
-    for c in line:
+    text = line[1][0][2]
+    for c in text:
         if c == character:
             count+=1
     return count
 
 #Return number of people tagged in statement. Used to denote conversation.
 def _people_tagged(line):
-    tokens = line.split()
+    text = line[1][0][2]
+    tokens = text.split()
     count = 0
     for word in tokens:
         if word[0] == '@':
@@ -122,9 +130,10 @@ def _people_tagged(line):
 def _punctuation_pairs(line):
     punc_list = ['!', '?']
     count = 0
-    for i in range(0, len(line)-1):
-        first = line[i]
-        second = line[i+1]
+    text = line[1][0][2]
+    for i in range(0, len(text)-1):
+        first = text[i]
+        second = text[i+1]
         if first in punc_list and second in punc_list:
             count += 1
             i = i + 2
