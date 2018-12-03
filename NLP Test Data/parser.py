@@ -1,3 +1,9 @@
+#Used on Sarcasm Data.txt or Not Sarcasm Data.txt to remove timestamps
+#and usernames and lowercase everything. Use the output file on Naive Bayes
+
+#Change the files being read from and written to for getting sarcastic and
+#not sarcastic
+
 import numpy as np
 from os import listdir
 from os.path import isfile, join

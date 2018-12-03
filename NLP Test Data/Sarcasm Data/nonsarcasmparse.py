@@ -1,3 +1,6 @@
+#This file randomly added lines from every chat file in the list below
+#and added them to NewNotSarcasmData.txt for manual pruning
+
 import random
 import os
 
