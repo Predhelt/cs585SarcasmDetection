@@ -10,7 +10,7 @@ import numpy as np
 from os import listdir
 from os.path import isfile, join
 
-def index_text(chat_file): # uses the all-parsed file
+def index_text(chat_file): # uses any raw data file
     # index shape: vod[(vod_ID, chat[line[text]])]
     vods = []
     chat_index = []
