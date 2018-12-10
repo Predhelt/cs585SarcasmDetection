@@ -1,4 +1,7 @@
 
+import math
+import os
+
 #Naive Bayes done using the "bag of words" approach in HW1
 sarc_dic = {}
 sarc_wcount = 0
@@ -62,16 +65,17 @@ def classifier(line):
     sarc_prob = 0
     nsarc_prob = 0
     for token in line.split():
-        sarc_prob = sarc_prob + get_sarc_prob(token)
-        nsarc_prob = nsarc_prob + get_nsarc_prob(token)
+        if (token != "kappa"):
+            sarc_prob = sarc_prob + math.log(get_sarc_prob(token))
+            nsarc_prob = nsarc_prob + math.log(get_nsarc_prob(token))
     if (sarc_prob > nsarc_prob):
         return "SARCASTIC"
     else:
         return "NOT SARCASTIC"
 
 #Goes through a chat log. Classifies each line as sarcastic or not and checks if
-#the line contains Kappa to see if it was correct. Returns the percentage of lines
-#it got correct
+#the line contains Kappa to see if it was correct (using the assumption that
+#sarcasm iff it contains Kappa). Returns the percentage of lines it got correct
     
 def classify_doc(chat_log):
     file = open(chat_log, "r", encoding="utf-8")
@@ -88,8 +92,12 @@ def classify_doc(chat_log):
     return correct / count
     
 if __name__ == '__main__':
-    get_sarc_word_counts("ParsedSarcasmData.txt")
+    files = os.listdir("Sarcasm Data/Chat logs");
+    print(files)
+    get_sarc_word_counts("ParsedSarcasmData.txt") 
     get_nsarc_word_counts("ParsedNotSarcasmData.txt")
+    for f in files:
+        print(classify_doc('Sarcasm Data/chat logs/' + f))
     
     
         
