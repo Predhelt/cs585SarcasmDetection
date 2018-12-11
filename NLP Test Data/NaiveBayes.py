@@ -64,14 +64,13 @@ def get_nsarc_prob(word):
 def classifier(line):
     sarc_prob = 0
     nsarc_prob = 0
-    for token in line.split():
-        if (token != "kappa"):
-            sarc_prob = sarc_prob + math.log(get_sarc_prob(token))
-            nsarc_prob = nsarc_prob + math.log(get_nsarc_prob(token))
+    for token in line:
+        sarc_prob = sarc_prob + math.log(get_sarc_prob(token))
+        nsarc_prob = nsarc_prob + math.log(get_nsarc_prob(token))
     if (sarc_prob > nsarc_prob):
-        return "SARCASTIC"
+        return "S"
     else:
-        return "NOT SARCASTIC"
+        return "N"
 
 #Goes through a chat log. Classifies each line as sarcastic or not and checks if
 #the line contains Kappa to see if it was correct (using the assumption that
@@ -79,25 +78,35 @@ def classifier(line):
     
 def classify_doc(chat_log):
     file = open(chat_log, "r", encoding="utf-8")
-    correct = 0
-    count = 0
+    sarc_correct = 0
+    sarc_count = 0
+    nsarc_correct = 0
+    nsarc_count = 0
     for line in file:
-        if classifier(line) == "SARCASTIC":
-            if ("kappa" in line):
-                correct = correct + 1
+        if classifier(line.split()[1:]) == "S":
+            if (line.split()[0] == "s"):
+                #print("Correct: ", line) #Use this to see which sarcasm lines we get right
+                sarc_correct = sarc_correct + 1
+                sarc_count = sarc_count + 1
+            else:
+                nsarc_count = nsarc_count + 1
         else:
-            if ("kappa" not in line):
-                correct = correct + 1
-        count = count + 1
-    return correct / count
-    
+            if (line.split()[0] == "n"):
+                nsarc_correct = nsarc_correct + 1
+                nsarc_count = nsarc_count + 1
+            else:
+                #print("Wrong: " , line) #Use this to see which sarcasm lines we get wrong
+                sarc_count = sarc_count + 1
+    print("Sarcastic Correct: ", sarc_correct / sarc_count, sarc_correct, "/", sarc_count)
+    print("Not Sarcastic Correct: ", nsarc_correct / nsarc_count, nsarc_correct, "/", nsarc_count)
+    print("Overall: ", (sarc_correct + nsarc_correct) / (sarc_count + nsarc_count), sarc_correct + nsarc_correct, "/", sarc_count + nsarc_count)
 if __name__ == '__main__':
-    files = os.listdir("Sarcasm Data/Chat logs");
-    print(files)
     get_sarc_word_counts("ParsedSarcasmData.txt") 
     get_nsarc_word_counts("ParsedNotSarcasmData.txt")
-    for f in files:
-        print(classify_doc('Sarcasm Data/chat logs/' + f))
+    classify_doc("Test Data/ParsedTestData.txt")
+
+
+
     
     
         
