@@ -100,7 +100,7 @@ def _sentiment_score(line):
         string += s + " "
     analyzer = SentimentIntensityAnalyzer()
     vec = analyzer.polarity_scores(string)
-    return (vec['neg'] - vec['pos']) - vec['neu']
+    return abs(vec['neg'] - vec['pos']) - vec['neu']
 
 #Gets the overall sentiment of a line
 def _overall_sentiment(line):
