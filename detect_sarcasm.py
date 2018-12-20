@@ -57,20 +57,24 @@ def cross_validate(clf, X, y):
         i+=1
 
 if __name__ == '__main__':
-    testf = 'data/data.csv'
-    trainf = 'data/test_data1.csv'
+    trainf = 'data/data.csv'
+    testf = 'data/test_data1.csv'
     print("getting training data")
-    X, y, feats = get_data(testf)
+    X, y, feats = get_data(trainf)
+    print("getting test data")
+    Xt, yt, _ = get_data(testf)
+
+##    Xv = np.concatenate([X, Xt], axis=0)
+##    yv = np.concatenate([y, yt], axis=0)
 
     print("setting up classifier")
     clf = nn_clf()
 ##    print("running cross validation")
-##    cross_validate(clf, X, y)
+##    cross_validate(clf, Xv, yv)
     print("fitting classifier")
-    clf.fit(X, y)
+    clf.fit(X, y) # swapped training for test because test had more data
 
-    print("getting test data")
-    Xt, yt, _ = get_data(trainf)
+    
 
     print("predicting labels")
     y_pred = clf.predict(Xt)
