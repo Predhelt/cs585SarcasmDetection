@@ -1,5 +1,9 @@
 # Uses the data.csv file to train the classifiers
 from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import precision_score
+from sklearn.metrics import recall_score
+from sklearn.metrics import accuracy_score
 
 def get_data(file):
     # read the data from the data.csv file line-by-line
@@ -10,12 +14,14 @@ def get_data(file):
     y = [] # labels
     
     f = open(file, 'r')
+    line = f.readline()
+    feats = line.split(', ')
     for line in f:
         vs = line.split(', ')
-        X.append(vs[:-1])
-        y.append(vs[-1])
+        X.append(list(map(float, vs[:-1])))
+        y.append(int(vs[-1]))
     
-    return X, y
+    return X, y, feats
 
 # TODO: tweak parameters
 def nn_clf():
@@ -34,17 +40,23 @@ def nn_clf():
     return clf
 
 
-clf.predict(Xt)
-
-
 if __name__ == '__main__':
     testf = 'data/data.csv'
-    trainf = 'data/_.csv' # TODO: make and put location of training file
-    X, y = get_data(testf)
+    trainf = 'data/test_data1.csv'
+    print("getting training data")
+    X, y, feats = get_data(testf)
 
+    print("setting up classifier")
     clf = nn_clf()
+    print("fitting classifier")
     clf.fit(X, y)
-    
-    Xt, yt = get_data(trainf)
 
-    clf.predict(Xt, yt)
+    print("getting test data")
+    Xt, yt, _ = get_data(trainf)
+
+    print("predicting labels")
+    y_pred = clf.predict(Xt)
+    print('confusion matrix:\n', confusion_matrix(yt, y_pred, [0,1]))
+    print('precision:\n', precision_score(yt, y_pred, [0,1]))
+    print('recall:\n', recall_score(yt, y_pred, [0,1]))
+    print('accuracy:\n', accuracy_score(yt, y_pred, [0,1]))
