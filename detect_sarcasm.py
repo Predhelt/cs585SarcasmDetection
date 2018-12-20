@@ -89,5 +89,5 @@ if __name__ == '__main__':
             failed_indices.append(i)
 
     for i in failed_indices:
-        print(i, 'prediction:', y_pred[i], 'truth:', yt[i])
+        print(i+1, 'prediction:', y_pred[i], 'truth:', yt[i])
     
