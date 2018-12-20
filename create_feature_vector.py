@@ -29,9 +29,8 @@ def index_text(chat_file): # uses any raw data file
     return chat_list
 
 def index_kyle_text(chat_file): # uses any data files formatted by kyle
-    # index shape: chat[line[text]]
-    neg_list = []
-    pos_list = []
+    # index shape: chat[(line[text], lbl)]
+    chat_list = []
 
     with open(chat_file, 'r', encoding='utf-8', errors='replace') as fp:
         line = fp.readline()
@@ -43,40 +42,43 @@ def index_kyle_text(chat_file): # uses any data files formatted by kyle
             li = line.split() # make list of words
 
             if li[0] == 'n':
-                neg_list.append(li[1:]) # add list of words to index
+                chat_list.append((li[1:], 0)) # add list of words to index
             elif li[0] == 's':
-                pos_list.append(li[1:])
+                chat_list.append((li[1:], 1))
             else:
                 continue
 
             line = fp.readline()
-    return neg_list, pos_list
+    return chat_list
 
-def create_field_fv(indx):
-    fv = []
-    f_names = [] # list of names of features
-
-    _add_feature_names(f_names)
-    fv.append(f_names)
-    _add_features(indx, fv)
-    return fv
-
-def create_fv(indx, label):
-    # same as create_fv but adds label at the end of each line
+def create_fv(indx):
+    # indx shape: [([], int)]
     fv = []
     f_names = [] # list of names of features
 
     _add_feature_names(f_names)
     f_names.append('label')
     fv.append(f_names)
-    _add_features(indx, fv, lbl=label)
+    for line in indx: # chat_info
+        _add_features(line[0], fv, lbl=line[1])
+    return fv
+
+def create_sorted_fv(indx, label):
+    # same as create_fv but does 1 label at a time
+    fv = []
+    f_names = [] # list of names of features
+
+    _add_feature_names(f_names)
+    f_names.append('label')
+    fv.append(f_names)
+    for line in indx: # chat_info
+        _add_features(line, fv, lbl=label)
     return fv
 
 def _add_feature_names(fn):
     # Makes sure the names are in the same order as in _compute_features()
     fn.append('exclaiming_end')
     fn.append('questioning_end')
-    #f_names.append('sentiment score')
     fn.append('uppercase_word_count')
     fn.append('people_tagged')
     fn.append('#_of_exclamations')
@@ -87,12 +89,11 @@ def _add_feature_names(fn):
     
     return
 
-def _add_features(indx, fv, lbl=-1):
-    for line in indx: # chat_info
-        vec = _compute_features(line)
-        if lbl >= 0:
-            vec.append(lbl)
-        fv.append(vec)
+def _add_features(line, fv, lbl=-1):
+    vec = _compute_features(line)
+    if lbl >= 0:
+        vec.append(lbl)
+    fv.append(vec)
     
 def _compute_features(line):
     # vod is in the form (vod_ID, chat[line[text]])
@@ -206,7 +207,7 @@ def output_data(neg_fv, pos_fv, of): # fv = feature vector, of = output file
         file.write(o[:-2] + '\n') # remove last comma and space
     file.close()
 
-def output_field(fv, of):
+def output_test(fv, of):
     file = open(of, 'w')
     for vec in fv:
         o = ''
@@ -233,24 +234,28 @@ def index_folder(chat_folder):
             indx.append(words) # put vod in the index
     return indx
 
-
-if __name__ == '__main__':
+def run_training():
     neg_data_file = 'data/labelled_data/0.txt'
     pos_data_file = 'data/labelled_data/1.txt'
     neg_indx = index_text(neg_data_file)
     pos_indx = index_text(pos_data_file)
-    neg_fv = create_fv(neg_indx, 0)
-    pos_fv = create_fv(pos_indx, 1)
+    neg_fv = create_sorted_fv(neg_indx, 0)
+    pos_fv = create_sorted_fv(pos_indx, 1)
     of_tr = 'data/data.csv'
     print(len(neg_fv), type(neg_fv))
     print(len(pos_fv), type(pos_fv))
     output_data(neg_fv, pos_fv, of_tr)
 
+def run_test():
     test_data_file = 'data/labelled_data/ParsedTestData.txt'
-    neg_indx, pos_indx = index_kyle_text(test_data_file)
-    neg_fv = create_fv(neg_indx, 0)
-    pos_fv = create_fv(pos_indx, 1)
+    indx = index_kyle_text(test_data_file)
+    fv = create_fv(indx)
     of_tr = 'data/test_data1.csv'
-    print(len(neg_fv), type(neg_fv))
-    print(len(pos_fv), type(pos_fv))
-    output_data(neg_fv, pos_fv, of_tr)
+    print(len(fv), type(fv))
+    output_test(fv, of_tr)
+
+
+if __name__ == '__main__':
+    # Training data does not have context between sentences
+    #run_training()
+    run_test()

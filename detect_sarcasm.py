@@ -82,3 +82,12 @@ if __name__ == '__main__':
     print('precision:\n', precision_score(yt, y_pred, [0,1]))
     print('recall:\n', recall_score(yt, y_pred, [0,1]))
     print('accuracy:\n', accuracy_score(yt, y_pred, [0,1]))
+
+    failed_indices = []
+    for i in range(len(y_pred)):
+        if y_pred[i] != yt[i]:
+            failed_indices.append(i)
+
+    for i in failed_indices:
+        print(i, 'prediction:', y_pred[i], 'truth:', yt[i])
+    
