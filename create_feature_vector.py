@@ -9,51 +9,25 @@
 import numpy as np
 from os import listdir
 from os.path import isfile, join
-
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 def index_text(chat_file): # uses any raw data file
     # index shape: chat[line[text]]
     chat_list = []
     
     with open(chat_file, 'r', encoding='utf-8', errors='replace') as fp:
         line = fp.readline()
-        
         while line:
             if line == '':
                 continue
             
             li = line.split() # make list of words
             
-            chat_list.append(li[2:]) # add list of words to index
-            # removes the timestamp and username because they are not being used
+            chat_list.append(li) # add list of words to index
 
             line = fp.readline()
     return chat_list
 
-def index_kyle_text(chat_file): # uses any data files formatted by kyle
-    # index shape: chat[line[text]]
-    neg_list = []
-    pos_list = []
-    
-    with open(chat_file, 'r', encoding='utf-8', errors='replace') as fp:
-        line = fp.readline()
-        
-        while line:
-            if line == '':
-                continue
-            
-            li = line.split() # make list of words
-
-            if li[0] == 'n':
-                neg_list.append(li[1:]) # add list of words to index
-            elif li[0] == 's':
-                pos_list.append(li[1:])
-            else:
-                continue
-
-            line = fp.readline()
-    return neg_list, pos_list
-
-def create_field_fv(indx):
+def create_validation_fv(indx):
     fv = []
     f_names = [] # list of names of features
 
@@ -83,6 +57,8 @@ def _add_feature_names(fn):
     fn.append('#_of_exclamations')
     fn.append('#_of_questions')
     fn.append('punctuation_pairs')
+    fn.append('sentiment score')
+    fn.append('overall sentiment score')
     
     return
 
@@ -103,6 +79,8 @@ def _compute_features(line):
     vec.append(_character_count(line, '!'))
     vec.append(_character_count(line, '?'))
     vec.append(_punctuation_pairs(line))
+    vec.append(_sentiment_score(line))
+    vec.append(_overall_sentiment(line))
    # vec.append(_sentiment_score(line))
     # ADD MORE FEATURE FUNCTION CALLS HERE
     return vec
@@ -115,9 +93,23 @@ def _endswith_char(line, char):
         return 1
     return 0
 
-def _sentiment_score(line): # TODO
-    
-    return 0
+#Calculates difference in sentiments
+def _sentiment_score(line):
+    string = ""
+    for s in line:
+        string += s + " "
+    analyzer = SentimentIntensityAnalyzer()
+    vec = analyzer.polarity_scores(string)
+    return (vec['neg'] - vec['pos']) - vec['neu']
+
+#Gets the overall sentiment of a line
+def _overall_sentiment(line):
+    string = ""
+    for s in line:
+        string += s + " "
+    analyzer = SentimentIntensityAnalyzer()
+    vec = analyzer.polarity_scores(string)
+    return vec['compound']
 
 #Returns percentage of words that are uppercase 0<= x <= 1
 def _uppercase_words(line):
@@ -174,7 +166,7 @@ def _punctuation_pairs(line):
                 j = j + 2
                 continue
     return count
-
+  
 def output_data(neg_fv, pos_fv, of): # fv = feature vector, of = output file
     # file.write(neg_fv + pos_fv)
     file = open(of, 'w')
@@ -190,7 +182,7 @@ def output_data(neg_fv, pos_fv, of): # fv = feature vector, of = output file
         file.write(o[:-2] + '\n') # remove last comma and space
     file.close()
 
-def output_field_data(fv, of):
+def output_validation(fv, of):
     file = open(of, 'w')
     for vec in fv:
         o = ''
@@ -230,11 +222,9 @@ if __name__ == '__main__':
     print(len(pos_fv), type(pos_fv))
     output_data(neg_fv, pos_fv, of_tr)
 
-    test_data_file = 'data/labelled_data/ParsedTestData.txt'
-    neg_indx, pos_indx = index_kyle_text(test_data_file)
-    neg_fv = create_fv(neg_indx, 0)
-    pos_fv = create_fv(pos_indx, 1)
-    of_tr = 'data/test_data1.csv'
-    print(len(neg_fv), type(neg_fv))
-    print(len(pos_fv), type(pos_fv))
-    output_data(neg_fv, pos_fv, of_tr)
+##    valid_dir = 'data/validation/'
+##    filenames = np.array([(valid_dir + f) for f in listdir(valid_dir) if isfile(join(valid_dir, f))])
+##    indx = index_folder(filenames)
+##    fv = create_validation_fv(indx)
+##    of_ts = 'data/validaion_set.csv'
+##    output_validation(fv, of_ts)
