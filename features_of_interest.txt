@@ -1,3 +1,0 @@
-neighboring post context (post location)
-unigrams, bigrams, trigrams
-post's word length
